@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Assignment Auditor</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; line-height: 1.6; }
+        textarea { width: 100%; height: 150px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; padding: 10px; }
+        button { background: #4285f4; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
+        #output { margin-top: 20px; padding: 20px; background: #f9f9f9; border-radius: 8px; border-left: 5px solid #4285f4; white-space: pre-wrap; }
+        .loading { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <h1>🎓 Assignment Auditor</h1>
+    
+    <label><b>1. Paste Assignment Prompt/Instructions:</b></label>
+    <textarea id="promptInput" placeholder="e.g. Write a 500 word essay on photosynthesis..."></textarea>
+
+    <label><b>2. Paste Your Work:</b></label>
+    <textarea id="workInput" placeholder="Paste your essay or code here..."></textarea>
+
+    <button id="auditBtn">🚀 Audit My Work</button>
+
+    <div id="output">Your feedback will appear here...</div>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "@google/genai": "https://esm.run/@google/genai"
+      }
+    }
+    </script>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
