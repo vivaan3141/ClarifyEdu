@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClarifyEDU - AI Assignment Feedback</title>
+    <title>ClarifyEDU | AI Assignment Feedback</title>
+    
+    <link rel="icon" href="https://fonts.gstatic.com/s/i/short-term/release/googlestyles/scholar/default/24px.svg">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    
     <style>
         :root {
             --primary: #4f46e5;
@@ -65,7 +69,6 @@
         #filePicker { display: none; }
         .file-info { font-size: 0.85rem; color: var(--muted); margin-top: 5px; }
         
-        /* Updated Tone Selector style */
         .tone-container { margin-bottom: 20px; text-align: center; }
         select {
             padding: 12px 20px;
@@ -93,6 +96,7 @@
         }
         #auditBtn:hover { background: var(--primary-hover); transform: translateY(-1px); }
         #auditBtn:disabled { background: #94a3b8; cursor: not-allowed; }
+        
         #output {
             margin-top: 40px;
             background: white;
@@ -101,6 +105,7 @@
             border-left: 8px solid var(--primary);
             display: none;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            white-space: pre-wrap;
         }
         .loading-spinner { font-style: italic; color: var(--primary); text-align: center; }
     </style>
@@ -115,15 +120,16 @@
             </svg>
             <span class="gemini-text">Gemini</span>
         </div>
-        <p>Your AI buddy for mastering assignments and meeting every rubric goal.</p>
+        <p>Your AI co-pilot for mastering assignments and meeting every rubric goal.</p>
     </div>
 
     <div class="tone-container">
         <label>Feedback Tone</label>
         <select id="toneSelect">
-            <option value="Chill">Chill</option>
-            <option value="Strict">Strict</option>
-            <option value="Technical">Technical</option>
+            <option value="Encouraging Mentor">Encouraging Mentor</option>
+            <option value="Strict Professor">Strict Professor</option>
+            <option value="Socratic Tutor">Socratic Tutor</option>
+            <option value="Technical Auditor">Technical Auditor</option>
         </select>
     </div>
 
@@ -155,9 +161,9 @@
     </script>
 
     <script type="module">
+        // Namespace import to handle library exports correctly
         import * as GenAIModule from "@google/genai";
 
-        // CONFIG: Your hardcoded key
         const API_KEY = "AIzaSyBYxtGKWVKYGTAZbvkdaxlzZ1BvwSGKPq4";
 
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -213,6 +219,7 @@
                 }
                 if (!work) throw new Error("Please provide your work via text or file upload.");
 
+                // Use .default.GoogleGenerativeAI to resolve the SyntaxError
                 const genAI = new GenAIModule.default.GoogleGenerativeAI(API_KEY);
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -236,7 +243,7 @@
                 const response = await result.response;
                 const text = response.text();
 
-                // Formatter for Markdown-ish display
+                // Format and display
                 output.innerHTML = text
                     .replace(/\n/g, '<br>')
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
