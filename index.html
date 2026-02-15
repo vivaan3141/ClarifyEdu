@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ClarifyEDU | AI Assignment Feedback</title>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-
     <style>
         :root {
             --primary: #4f46e5;
@@ -17,7 +15,6 @@
             --text: #1e293b;
             --muted: #64748b;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg);
@@ -27,10 +24,8 @@
             padding: 40px 20px;
             line-height: 1.6;
         }
-
         .header { text-align: center; margin-bottom: 40px; }
         h1 { color: var(--primary); font-size: 2.8rem; margin-bottom: 5px; letter-spacing: -1px; }
-        
         .gemini-badge {
             display: flex;
             align-items: center;
@@ -40,12 +35,9 @@
         }
         .gemini-badge span { font-size: 0.9rem; color: var(--muted); font-weight: 500; }
         .gemini-text { font-weight: bold; color: #1e293b; }
-
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 20px; }
         .input-group { background: var(--card); padding: 25px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
-        
         label { display: block; font-weight: 700; margin-bottom: 12px; font-size: 0.95rem; color: var(--primary); }
-        
         textarea {
             width: 100%;
             height: 250px;
@@ -59,7 +51,6 @@
             transition: border-color 0.2s;
         }
         textarea:focus { outline: none; border-color: var(--primary); }
-
         .drop-zone {
             border: 2px dashed #cbd5e1;
             border-radius: 10px;
@@ -73,7 +64,6 @@
         .drop-zone:hover { border-color: var(--primary); background: #eef2ff; }
         #filePicker { display: none; }
         .file-info { font-size: 0.85rem; color: var(--muted); margin-top: 5px; }
-
         .settings-bar {
             display: flex;
             gap: 20px;
@@ -85,14 +75,12 @@
             justify-content: center;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
-        
         input[type="password"], select {
             padding: 10px 15px;
             border-radius: 8px;
             border: 1px solid #e2e8f0;
             font-size: 0.9rem;
         }
-
         #auditBtn {
             display: block;
             width: 100%;
@@ -109,7 +97,6 @@
         }
         #auditBtn:hover { background: var(--primary-hover); transform: translateY(-1px); }
         #auditBtn:disabled { background: #94a3b8; cursor: not-allowed; }
-
         #output {
             margin-top: 40px;
             background: white;
@@ -118,13 +105,11 @@
             border-left: 8px solid var(--primary);
             display: none;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-            white-space: pre-wrap; /* Preserves formatting */
         }
         .loading-spinner { font-style: italic; color: var(--primary); text-align: center; }
     </style>
 </head>
 <body>
-
     <div class="header">
         <h1>🎓 Clarify - Education</h1>
         <div class="gemini-badge">
@@ -140,7 +125,7 @@
     <div class="settings-bar">
         <div>
             <label style="margin-bottom: 5px;">API Key</label>
-            <input type="password" id="apiKeyInput" placeholder="Enter Gemini API Key">
+            <input type="password" id="apiKeyInput" placeholder="Enter Gemini API Key" value="YOUR_ACTUAL_API_KEY_HERE">
         </div>
         <div>
             <label style="margin-bottom: 5px;">Feedback Tone</label>
@@ -158,11 +143,9 @@
             <label>1. The Assignment Instructions</label>
             <textarea id="promptInput" placeholder="Paste the prompt, rubric, or teacher instructions here..."></textarea>
         </div>
-
         <div class="input-group">
             <label>2. Your Draft / Project</label>
             <textarea id="workInput" placeholder="Paste your essay, code, or notes here..."></textarea>
-            
             <div class="drop-zone" id="dropZone">
                 <span id="fileLabel">📁 Upload PDF, DOCX, or TXT</span>
                 <input type="file" id="filePicker" accept=".pdf,.docx,.txt">
@@ -172,23 +155,22 @@
     </div>
 
     <button id="auditBtn"> Get feedback on your work!</button>
-
     <div id="output"></div>
 
     <script type="importmap">
     {
       "imports": {
-        "@google/genai": "https://esm.run/@google/generative-ai"
+        "@google/genai": "https://esm.run/@google/genai"
       }
     }
     </script>
 
     <script type="module">
-        import { GoogleGenerativeAI } from "@google/genai";
+        // Import the entire module to avoid the export naming error
+        import * as GenAIModule from "@google/genai";
 
-        // Setup File Processing
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        
+
         const dropZone = document.getElementById('dropZone');
         const filePicker = document.getElementById('filePicker');
         const fileInfo = document.getElementById('fileInfo');
@@ -204,7 +186,6 @@
 
         async function extractText(file) {
             if (file.type === "text/plain") return await file.text();
-            
             if (file.type === "application/pdf") {
                 const arrayBuffer = await file.arrayBuffer();
                 const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -216,7 +197,6 @@
                 }
                 return text;
             }
-
             if (file.name.endsWith('.docx')) {
                 const arrayBuffer = await file.arrayBuffer();
                 const result = await mammoth.extractRawText({ arrayBuffer });
@@ -226,13 +206,13 @@
         }
 
         auditBtn.onclick = async () => {
-            const key = "AIzaSyBYxtGKWVKYGTAZbvkdaxlzZ1BvwSGKPq4"
-            const promptContent = document.getElementById('promptInput').value;
+            const key = document.getElementById('apiKeyInput').value;
+            const prompt = document.getElementById('promptInput').value;
             const tone = document.getElementById('toneSelect').value;
             let work = document.getElementById('workInput').value;
 
-            if (!key) return alert("Please enter your API Key.");
-            if (!promptContent) return alert("Please paste the assignment instructions.");
+            if (!key || key === "YOUR_ACTUAL_API_KEY_HERE") return alert("Please enter your valid API Key.");
+            if (!prompt) return alert("Please paste the assignment instructions.");
 
             auditBtn.disabled = true;
             output.style.display = "block";
@@ -242,37 +222,38 @@
                 if (filePicker.files.length > 0) {
                     work = await extractText(filePicker.files[0]);
                 }
-
                 if (!work) throw new Error("Please provide your work via text or file upload.");
 
-                const genAI = new GoogleGenerativeAI(key);
+                // Initialize using the module object
+                const genAI = new GenAIModule.GoogleGenerativeAI(key);
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
                 const finalPrompt = `
                     You are an expert academic assistant acting as a ${tone}.
                     Your goal is to help the student improve their work by comparing it against the instructions provided.
-                    
+
                     INSTRUCTIONS/RUBRIC:
-                    ${promptContent}
-                    
+                    ${prompt}
+
                     STUDENT WORK:
                     ${work}
 
                     Provide a structured review in Markdown with these sections:
-                    1. Met Requirements
-                    2. Missing/Weak Elements
-                    3. Growth Pointers (8 actionable tips to improve the grade)
+                    1. **Met Requirements** (Highlight what they did WELL)
+                    2. **Missing/Weak Elements** (Specific things the prompt asked for that are missing or need detail)
+                    3. **Growth Pointers** (8 actionable tips to improve the grade)
                 `;
 
                 const result = await model.generateContent(finalPrompt);
-                const textResponse = result.response.text();
-                
-                // Better rendering for Bold and Line Breaks
-                output.innerHTML = textResponse
+                const response = await result.response;
+                const text = response.text();
+
+                // Simple renderer for display
+                output.innerHTML = text
                     .replace(/\n/g, '<br>')
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/### (.*?)/g, '<h3>$1</h3>');
-                
+                    .replace(/^\d\.\s(.*)$/gm, '<li>$1</li>'); // Basic list support
+
             } catch (err) {
                 output.innerHTML = `<span style="color:red">Error: ${err.message}</span>`;
             } finally {
