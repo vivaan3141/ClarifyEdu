@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clarify Education - AI Assignment Feedback for Students</title>
+    <title>ClarifyEDU | AI Assignment Feedback</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -39,19 +39,7 @@
             margin-bottom: 20px;
         }
         .gemini-badge span { font-size: 0.9rem; color: var(--muted); font-weight: 500; }
-        .gemini-text { font-weight: bold; color: #4285F4; }
-
-        .settings-bar {
-            display: flex;
-            gap: 20px;
-            margin-top: 25px;
-            background: var(--card);
-            padding: 20px;
-            border-radius: 16px;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        }
+        .gemini-text { font-weight: bold; color: #1e293b; }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 20px; }
         .input-group { background: var(--card); padding: 25px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
@@ -67,19 +55,43 @@
             resize: none;
             box-sizing: border-box;
             font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
         }
+        textarea:focus { outline: none; border-color: var(--primary); }
 
         .drop-zone {
             border: 2px dashed #cbd5e1;
             border-radius: 10px;
             padding: 20px;
             text-align: center;
+            transition: all 0.3s;
             cursor: pointer;
             background: #f1f5f9;
             margin-top: 15px;
         }
         .drop-zone:hover { border-color: var(--primary); background: #eef2ff; }
         #filePicker { display: none; }
+        .file-info { font-size: 0.85rem; color: var(--muted); margin-top: 5px; }
+
+        .settings-bar {
+            display: flex;
+            gap: 20px;
+            margin-top: 25px;
+            background: var(--card);
+            padding: 20px;
+            border-radius: 16px;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        
+        input[type="password"], select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
 
         #auditBtn {
             display: block;
@@ -93,8 +105,10 @@
             font-weight: 700;
             margin-top: 25px;
             cursor: pointer;
+            transition: all 0.2s;
         }
-        #auditBtn:disabled { background: #94a3b8; }
+        #auditBtn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        #auditBtn:disabled { background: #94a3b8; cursor: not-allowed; }
 
         #output {
             margin-top: 40px;
@@ -104,6 +118,7 @@
             border-left: 8px solid var(--primary);
             display: none;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            white-space: pre-wrap; /* Preserves formatting */
         }
         .loading-spinner { font-style: italic; color: var(--primary); text-align: center; }
     </style>
@@ -111,10 +126,10 @@
 <body>
 
     <div class="header">
-        <h1> Clarify Education</h1>
+        <h1>🎓 Clarify - Education</h1>
         <div class="gemini-badge">
             <span>Powered by</span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" fill="#4285F4"/>
             </svg>
             <span class="gemini-text">Gemini</span>
@@ -124,11 +139,15 @@
 
     <div class="settings-bar">
         <div>
+            <label style="margin-bottom: 5px;">API Key</label>
+            <input type="password" id="apiKeyInput" placeholder="Enter Gemini API Key">
+        </div>
+        <div>
             <label style="margin-bottom: 5px;">Feedback Tone</label>
-            <select id="toneSelect" style="padding: 10px; border-radius: 8px;">
+            <select id="toneSelect">
                 <option value="Encouraging Mentor">Encouraging Mentor</option>
                 <option value="Strict Professor">Strict Professor</option>
-                <option value="Socratic Tutor">Socratic Tutor</option>
+                <option value="Socratic Tutor (Asks questions)">Socratic Tutor</option>
                 <option value="Technical Auditor">Technical Auditor</option>
             </select>
         </div>
@@ -137,27 +156,29 @@
     <div class="grid">
         <div class="input-group">
             <label>1. The Assignment Instructions</label>
-            <textarea id="promptInput" placeholder="Paste the prompt or rubric here..."></textarea>
+            <textarea id="promptInput" placeholder="Paste the prompt, rubric, or teacher instructions here..."></textarea>
         </div>
 
         <div class="input-group">
             <label>2. Your Draft / Project</label>
-            <textarea id="workInput" placeholder="Paste your work here..."></textarea>
+            <textarea id="workInput" placeholder="Paste your essay, code, or notes here..."></textarea>
+            
             <div class="drop-zone" id="dropZone">
                 <span id="fileLabel">📁 Upload PDF, DOCX, or TXT</span>
                 <input type="file" id="filePicker" accept=".pdf,.docx,.txt">
             </div>
+            <div class="file-info" id="fileInfo">No file selected</div>
         </div>
     </div>
 
-    <button id="auditBtn">Get feedback on your work!</button>
+    <button id="auditBtn"> Get feedback on your work!</button>
 
     <div id="output"></div>
 
     <script type="importmap">
     {
       "imports": {
-        "@google/genai": "https://esm.run/@google/genai"
+        "@google/genai": "https://esm.run/@google/generative-ai"
       }
     }
     </script>
@@ -165,23 +186,25 @@
     <script type="module">
         import { GoogleGenerativeAI } from "@google/genai";
 
-        const API_KEY = "AIzaSyCoDjQmr5GkdYD-UHv04EOoN0eSgPZtgyw";
-
+        // Setup File Processing
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         
         const dropZone = document.getElementById('dropZone');
         const filePicker = document.getElementById('filePicker');
-        const fileLabel = document.getElementById('fileLabel');
+        const fileInfo = document.getElementById('fileInfo');
         const output = document.getElementById('output');
         const auditBtn = document.getElementById('auditBtn');
 
         dropZone.onclick = () => filePicker.click();
         filePicker.onchange = () => {
-            if (filePicker.files.length) fileLabel.innerText = "File ready: " + filePicker.files[0].name;
+            if (filePicker.files.length) {
+                fileInfo.innerText = "Ready to analyze: " + filePicker.files[0].name;
+            }
         };
 
         async function extractText(file) {
             if (file.type === "text/plain") return await file.text();
+            
             if (file.type === "application/pdf") {
                 const arrayBuffer = await file.arrayBuffer();
                 const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -193,6 +216,7 @@
                 }
                 return text;
             }
+
             if (file.name.endsWith('.docx')) {
                 const arrayBuffer = await file.arrayBuffer();
                 const result = await mammoth.extractRawText({ arrayBuffer });
@@ -202,40 +226,53 @@
         }
 
         auditBtn.onclick = async () => {
-            const prompt = document.getElementById('promptInput').value;
+            const key = document.getElementById('apiKeyInput').value;
+            const promptContent = document.getElementById('promptInput').value;
             const tone = document.getElementById('toneSelect').value;
             let work = document.getElementById('workInput').value;
 
-            if (!prompt) return alert("Please paste instructions first.");
-            
+            if (!key) return alert("Please enter your API Key.");
+            if (!promptContent) return alert("Please paste the assignment instructions.");
+
             auditBtn.disabled = true;
             output.style.display = "block";
-            output.innerHTML = `<div class="loading-spinner">ClarifyEDU is analyzing...</div>`;
+            output.innerHTML = `<div class="loading-spinner"> Clarify is reading your work as a ${tone}...</div>`;
 
             try {
                 if (filePicker.files.length > 0) {
                     work = await extractText(filePicker.files[0]);
                 }
-                if (!work) throw new Error("Please paste text or upload a file.");
 
-                const genAI = new GoogleGenerativeAI(API_KEY);
+                if (!work) throw new Error("Please provide your work via text or file upload.");
+
+                const genAI = new GoogleGenerativeAI(key);
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
                 const finalPrompt = `
-                    Act as an expert ${tone}. Compare this work to the instructions.
-                    INSTRUCTIONS: ${prompt}
-                    WORK: ${work}
+                    You are an expert academic assistant acting as a ${tone}.
+                    Your goal is to help the student improve their work by comparing it against the instructions provided.
                     
-                    Format your response in Markdown:
-                    1. **Met Requirements** (What was done correctly)
-                    2. **Missing/Weak Elements** (Gaps found)
-                    3. **Growth Pointers** (5 specific tips for an A+)
+                    INSTRUCTIONS/RUBRIC:
+                    ${promptContent}
+                    
+                    STUDENT WORK:
+                    ${work}
+
+                    Provide a structured review in Markdown with these sections:
+                    1. Met Requirements
+                    2. Missing/Weak Elements
+                    3. Growth Pointers (8 actionable tips to improve the grade)
                 `;
 
                 const result = await model.generateContent(finalPrompt);
-                const responseText = result.response.text();
+                const textResponse = result.response.text();
                 
-                output.innerHTML = responseText.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                // Better rendering for Bold and Line Breaks
+                output.innerHTML = textResponse
+                    .replace(/\n/g, '<br>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/### (.*?)/g, '<h3>$1</h3>');
+                
             } catch (err) {
                 output.innerHTML = `<span style="color:red">Error: ${err.message}</span>`;
             } finally {
