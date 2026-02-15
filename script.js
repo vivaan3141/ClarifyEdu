@@ -1,44 +1,53 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/genai";
 
-// 1. Setup - Replace with your real key
-const API_KEY = "AIzaSyCoDjQmr5GkdYD-UHv04EOoN0eSgPZtgyw";
-const genAI = new GoogleGenAI({ apiKey: API_KEY });
+// Initialize PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-const btn = document.getElementById('auditBtn');
-const output = document.getElementById('output');
+async function extractTextFromFile(file) {
+    const reader = new FileReader();
+    
+    // Handle Text Files (.txt)
+    if (file.type === "text/plain") {
+        return file.text();
+    } 
+    
+    // Handle Word Docs (.docx)
+    if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        return result.value;
+    }
+    
+    // Handle PDFs (.pdf)
+    if (file.type === "application/pdf") {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let fullText = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            fullText += content.items.map(item => item.str).join(" ") + "\n";
+        }
+        return fullText;
+    }
+}
 
+// Updated Button Click Logic
 btn.addEventListener('click', async () => {
+    const fileInput = document.getElementById('filePicker');
+    let workText = document.getElementById('workInput').value;
     const promptText = document.getElementById('promptInput').value;
-    const workText = document.getElementById('workInput').value;
+    const userKey = document.getElementById('apiKeyInput').value;
 
-    if (!promptText || !workText) {
-        alert("Please fill in both boxes!");
+    if (fileInput.files.length > 0) {
+        output.innerHTML = "Reading file...";
+        workText = await extractTextFromFile(fileInput.files[0]);
+    }
+
+    if (!workText || !promptText) {
+        alert("Please provide both the prompt and your work (pasted or uploaded)!");
         return;
     }
 
-    output.innerHTML = "<span class='loading'>Analyzing your work... please wait...</span>";
-
-    try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-        const instruction = `
-            Compare the STUDENT WORK against the ASSIGNMENT PROMPT.
-            Provide feedback in 3 parts: 
-            1. 'Met Requirements' 
-            2. 'Missing Elements' 
-            3. 'Suggestions for an A+'
-            
-            PROMPT: ${promptText}
-            WORK: ${workText}
-        `;
-
-        const result = await model.generateContent(instruction);
-        const response = await result.response;
-        
-        // Render the text result
-        output.innerText = response.text();
-
-    } catch (error) {
-        output.innerHTML = "<span style='color:red'>Error: " + error.message + "</span>";
-    }
+    // ... (Your existing genAI code here using workText)
 });
