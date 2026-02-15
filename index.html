@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClarifyEDU | AI Assignment Feedback</title>
+    <title>ClarifyEDU - AI Assignment Feedback</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <style>
@@ -64,23 +64,19 @@
         .drop-zone:hover { border-color: var(--primary); background: #eef2ff; }
         #filePicker { display: none; }
         .file-info { font-size: 0.85rem; color: var(--muted); margin-top: 5px; }
-        .settings-bar {
-            display: flex;
-            gap: 20px;
-            margin-top: 25px;
-            background: var(--card);
-            padding: 20px;
-            border-radius: 16px;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        }
-        input[type="password"], select {
-            padding: 10px 15px;
-            border-radius: 8px;
+        
+        /* Updated Tone Selector style */
+        .tone-container { margin-bottom: 20px; text-align: center; }
+        select {
+            padding: 12px 20px;
+            border-radius: 12px;
             border: 1px solid #e2e8f0;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            color: var(--text);
         }
+
         #auditBtn {
             display: block;
             width: 100%;
@@ -119,23 +115,17 @@
             </svg>
             <span class="gemini-text">Gemini</span>
         </div>
-        <p>Your AI co-pilot for mastering assignments and meeting every rubric goal.</p>
+        <p>Your AI buddy for mastering assignments and meeting every rubric goal.</p>
     </div>
 
-    <div class="settings-bar">
-        <div>
-            <label style="margin-bottom: 5px;">API Key</label>
-            <input type="password" id="apiKeyInput" placeholder="Enter Gemini API Key" value="YOUR_ACTUAL_API_KEY_HERE">
-        </div>
-        <div>
-            <label style="margin-bottom: 5px;">Feedback Tone</label>
-            <select id="toneSelect">
-                <option value="Encouraging Mentor">Encouraging Mentor</option>
-                <option value="Strict Professor">Strict Professor</option>
-                <option value="Socratic Tutor (Asks questions)">Socratic Tutor</option>
-                <option value="Technical Auditor">Technical Auditor</option>
-            </select>
-        </div>
+    <div class="tone-container">
+        <label>Feedback Tone</label>
+        <select id="toneSelect">
+            <option value="Chill">Encouraging Mentor</option>
+            <option value="Strict">Strict Professor</option>
+            <option value="Tutor">Socratic Tutor</option>
+            <option value="Technical">Technical Auditor</option>
+        </select>
     </div>
 
     <div class="grid">
@@ -166,8 +156,10 @@
     </script>
 
     <script type="module">
-        // Import the entire module to avoid the export naming error
         import * as GenAIModule from "@google/genai";
+
+        // CONFIG: Your hardcoded key
+        const API_KEY = "AIzaSyBYxtGKWVKYGTAZbvkdaxlzZ1BvwSGKPq4";
 
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -206,12 +198,10 @@
         }
 
         auditBtn.onclick = async () => {
-            const key = document.getElementById('apiKeyInput').value;
             const prompt = document.getElementById('promptInput').value;
             const tone = document.getElementById('toneSelect').value;
             let work = document.getElementById('workInput').value;
 
-            if (!key || key === "YOUR_ACTUAL_API_KEY_HERE") return alert("Please enter your valid API Key.");
             if (!prompt) return alert("Please paste the assignment instructions.");
 
             auditBtn.disabled = true;
@@ -224,8 +214,7 @@
                 }
                 if (!work) throw new Error("Please provide your work via text or file upload.");
 
-                // Initialize using the module object
-                const genAI = new GenAIModule.GoogleGenerativeAI(key);
+                const genAI = new GenAIModule.default.GoogleGenerativeAI(API_KEY);
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
                 const finalPrompt = `
@@ -248,13 +237,13 @@
                 const response = await result.response;
                 const text = response.text();
 
-                // Simple renderer for display
+                // Formatter for Markdown-ish display
                 output.innerHTML = text
                     .replace(/\n/g, '<br>')
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/^\d\.\s(.*)$/gm, '<li>$1</li>'); // Basic list support
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
             } catch (err) {
+                console.error(err);
                 output.innerHTML = `<span style="color:red">Error: ${err.message}</span>`;
             } finally {
                 auditBtn.disabled = false;
