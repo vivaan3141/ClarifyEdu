@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BloomCheck | AI Assignment Feedback</title>
+    <title>ClarufyEDU | AI Assignment Feedback</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -131,7 +131,7 @@
 <body>
 
     <div class="header">
-        <h1>🎓 BloomCheck</h1>
+        <h1>🎓 Clarify - Education</h1>
         <div class="gemini-badge">
             <span>Powered by</span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -176,7 +176,7 @@
         </div>
     </div>
 
-    <button id="auditBtn">🚀 Get Expert Feedback</button>
+    <button id="auditBtn"> Get feedback on your work!</button>
 
     <div id="output"></div>
 
@@ -242,7 +242,7 @@
 
             auditBtn.disabled = true;
             output.style.display = "block";
-            output.innerHTML = `<div class="loading-spinner">BloomCheck is reviewing your work as a ${tone}...</div>`;
+            output.innerHTML = `<div class="loading-spinner"> Clarify is reading your work as a ${tone}...</div>`;
 
             try {
                 if (filePicker.files.length > 0) {
@@ -265,9 +265,9 @@
                     ${work}
 
                     Provide a structured review in Markdown with these sections:
-                    1. **Met Requirements** (Highlight what they did right)
+                    1. **Met Requirements** (Highlight what they did WRONG)
                     2. **Missing/Weak Elements** (Specific things the prompt asked for that are missing or need detail)
-                    3. **Growth Pointers** (3 actionable tips to improve the grade)
+                    3. **Growth Pointers** (8 actionable tips to improve the grade)
                 `;
 
                 const result = await model.generateContent(finalPrompt);
