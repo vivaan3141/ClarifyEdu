@@ -228,7 +228,7 @@
                 if (!work) throw new Error("Need some work to review!");
 
                 const genAI = new GoogleGenerativeAI(API_KEY);
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
                 const finalPrompt = `
                     Act as an academic mentor with a ${tone} tone. 
