@@ -162,7 +162,7 @@
     <script type="module">
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-        const API_KEY = "AIzaSyBYxtGKWVKYGTAZbvkdaxlzZ1BvwSGKPq4";
+        const key = "AIzaSyBpGSLcPcXyCveR-TpL25yEGw-sHkU8jNY";
 
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         
@@ -227,7 +227,7 @@
 
                 if (!work) throw new Error("Need some work to review!");
 
-                const genAI = new GoogleGenerativeAI(API_KEY);
+                const genAI = new GoogleGenerativeAI(key);
                 const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
                 const finalPrompt = `
