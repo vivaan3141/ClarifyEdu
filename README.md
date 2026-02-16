@@ -1,1 +1,2 @@
-# NorcalHack26
+# ClarifyEDU
+## (Clarify - Education AI)
